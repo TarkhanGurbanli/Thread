@@ -93,3 +93,132 @@ Responsiveness — bir proqramın istifadəçinin əmrlərinə və ya hadisələ
 Responsiveness → Concurrency
 Yəni birdən çox işin eyni vaxtda və ya növbəli şəkildə baş verməsi Concurrency sayəsində proqramın istifadəçiyə cavab vermə sürətini artırır.
 
+## 1️⃣1️⃣ Performance nədir?
+
+Performance — bir proqramın müəyyən işləri nə qədər tez və effektiv icra etməsi deməkdir.
+
+**📌 Necə işləyir?**
+
+- Çoxsaylı və ağır işləri eyni anda fərqli thread-lərə bölüb, fərqli CPU nüvələrində işlətməklə, proqramın icra müddəti xeyli azalır.
+- Bu zaman işlər əsl paralel şəkildə görülür və ümumi iş çox daha tez bitir.
+
+**📌 Misal:**
+Bir proqram video konvert edərkən:
+
+- Bir thread video-nun səsini işləyir.
+- Bir thread görüntünü konvert edir.
+- Başqa bir thread isə faylı yazır.
+
+Bu işlər fərqli CPU nüvələrində eyni anda görülə bilər.
+
+**📌 Nəticə:**
+
+Performance → Parallelism
+Yəni fərqli CPU nüvələri üzərində eyni anda fərqli işlərin görülməsi Parallelism sayəsində proqramın icra sürətini artırır.
+
+---
+
+## 1️⃣2️⃣ Multithreading-in çıxardığı problemlər və onların həlli
+
+**📌 Shared Mutable State Issues**
+(Paylaşılan dəyişkən vəziyyət problemləri)
+
+**Bir neçə thread eyni anda eyni resursa və ya dəyişənə çıxış edəndə bu problemlər yaranır:**
+
+### **`Race Conditions` (Yarış halı):**
+
+- **Problem:** İki və ya daha çox thread eyni dəyişəni eyni anda oxuyub yazanda, nəticə gözlənilməz ola bilər.
+
+- **Həll:**
+  - `synchronized` blokları
+  - `ReentrantLock`
+  - Atomic dəyişənlər (məs. `AtomicInteger`)
+  - ya da no shared state dizaynı
+
+ ### Invisible Writes (Görünməyən yazmalar)
+
+- **Problem:** Bir thread-in dəyişdiyi dəyər digər thread tərəfindən vaxtında görünməyə bilər.
+
+- **Həll:**
+  - `volatile` açar sözü
+  - `synchronized` blokları
+  - Memory barrier-lər (JVM səviyyəsində)
+
+### Congestion (Tıxanma)
+
+- **Problem:** Çox sayda thread eyni resursa girməyə çalışanda resurs sıxlığı yaranır və sistem ləngiyir.
+
+- **Həll:**
+  - Əlverişli lock strategiyası
+  - `ReadWriteLock`
+  - `Semaphore`
+  - `Thread pool`-lar
+ 
+### Deadlock (Çıxılmaz vəziyyət)
+
+- **Problem:** İki və ya daha çox thread bir-birinin kilidini gözləyir və heç biri işi davam etdirə bilmir.
+
+- **Həll:**
+  - Lock sırası (lock ordering)
+  - `tryLock()` istifadə etmək
+  - `Timeout`-la lock almaq
+  - `Deadlock detection` mexanizmi
+ 
+### Nested Monitor Lockout (İç-içə lock bloklanması)
+
+- **Problem:** Bir thread özündə bir neçə lock tutduqda və başqası bu lock-lardan birini almağa çalışanda bloklanıb qalması
+
+- **Həll:**
+  - Lock sıralamasını planlaşdırmaq
+  - Bir lock içində başqa lock istifadə etməmək
+
+### Starvation (Aclıq vəziyyəti)
+
+- **Problem:** Aşağı prioritetli thread-lər resurs ala bilmir və sonsuz gözləyir
+- Həll:
+  - Fair lock-lar (`ReentrantLock(true)`)
+  - Thread prioritetlərini balanslı bölüşdürmək
+ 
+### Slipped Conditions (Sürüşən vəziyyətlər)
+
+- **Problem:** Thread bir şərti yoxlayıb lock almamış, vəziyyət dəyişir və bu hal gözəgörünməz qalır.
+
+- **Həll:**
+  - `synchronized` və ya Lock blokları daxilində şərti yoxlamaq
+  - `wait()` / `notify()` mexanizmi ilə dəstəkləmək
+
+### Missed Signals (Qaçırılan siqnallar)
+
+- **Problem:** Bir thread digərini notify() ilə xəbərdar edir, amma xəbərdarlıq ediləcək thread hələ wait()-ə keçməyib.
+
+- Həll:
+  - `Condition` obyektləri ilə `await()` və `signal()` istifadə etmək
+  - Yaxşı dizayn olunmuş `wait-notify` mexanizmi
+
+**📌 No Shared Mutable State Concurrency**
+**(Paylaşılan dəyişən olmadan paralelləşmə modelləri)**
+Bu problemlər paylaşılan mutable state olmadıqda demək olar ki, aradan qalxır.
+
+### Separate State Concurrency (Ayrı vəziyyət paralelliyi)**
+
+- Hər thread öz məlumatı ilə işləyir, paylaşma yoxdur.
+- Məsələn: hər thread öz obyektini yaradır.
+
+### Functional Parallelism (Funksional paralelizm)
+
+- Immutable dəyişənlər və side-effect olmayan funksiyalarla işləyir.
+- Scala, Kotlin, Clojure kimi dillərdə populyardır.
+
+### Parallel Pipelines (Paralel boru xətti icrası)
+
+- İşlər mərhələ-mərhələ paralel axınla ötürülür.
+- Hər mərhələ ayrı thread və ya prosesdə işləyir.
+
+---
+
+
+
+
+
+
+
