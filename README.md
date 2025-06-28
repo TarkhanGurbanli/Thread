@@ -49,6 +49,47 @@
 - Yəni bir proqram birdən çox iş parçasına bölünür və bu parçalar eyni anda və ya növbə ilə icra olunur.
 - Thread-lər eyni proqramın daxilində çalışdıqları üçün həmin proqramın resurslarını paylaşa bilirlər (məsələn, dəyişənlər, obyektlər və s.).
 
+## 7️⃣ Process icinde ne var?
 
+-  Code Segment (Proqramın kodları burada saxlanılır.)
+- Data Segment(Global və static dəyişənlər burada yerləşir.)
+- Heap(Dynamic olaraq run-time zamanı yaradılan obyekt və məlumatlar burada yerləşir.)
+- Stack(Hər thread-in öz Stack-i olur və burada lokal dəyişənlər, funksiya çağırışları, return address-lər saxlanılır.)
+- main Thread ve eger yaradilimsa diger threadler
 
+**Process Control Block (PCB - (Prosesə aid idarəetmə məlumatlarını saxlayır)):**
+- Process ID (PID)
+- Status (running, waiting)
+- CPU register-lərinin vəziyyəti
+- Prioritet
+- Açıq faylların siyahısı
+- Scheduling məlumatları
+
+## 8️⃣ Thread icinde ne var?
+
+- Thread id
+- Stack ve ya basqa adi ile Stack frame
+- Instruction Pointer (Bu ozunde bir sonraki gelecek threadin addresini saxlayir)
+ 
+## 9️⃣ Niye Multithreading? 
+
+**Multithreading-in əsas məqsədləri iki başlıca səbəblə bağlıdır:**
+- Responsiveness -> Concurrency
+- Performance -> Paralelism
+İndi gəlin bu anlayışları 10 və 11-ci başlıqlarda detallı izah edək.
+
+## 🔟 Responsiveness nədir?
+
+Responsiveness — bir proqramın istifadəçinin əmrlərinə və ya hadisələrə nə qədər tez reaksiya verdiyini göstərən anlayışdır.
+
+**Necə işləyir?**
+
+- Multithreading ilə isə:
+       - Uzun çəkən iş ayrı bir thread-də görülür.
+       - Main thread isə istifadəçidən gələn əmrlərə cavab verməyə davam edir.
+       - Bu da proqramın Responsive (həssas və donmayan) işləməsini təmin edir.
+
+**📌 Nəticə:**
+Responsiveness → Concurrency
+Yəni birdən çox işin eyni vaxtda və ya növbəli şəkildə baş verməsi Concurrency sayəsində proqramın istifadəçiyə cavab vermə sürətini artırır.
 
