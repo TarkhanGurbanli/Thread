@@ -216,9 +216,40 @@ Bu problemlər paylaşılan mutable state olmadıqda demək olar ki, aradan qalx
 
 ---
 
+## 1️⃣2️⃣ ReentrantLock nədir?
 
+- Lock mexanizmidir, `synchronized`-a bənzəyir.
+Eyni thread bir lock-u birdən çox dəfə əldə edə bilər və unlock etdikcə tam azad olunur.
+**Daha çox əlavə imkanlar təqdim edir:**
 
+- `lock()` — Thread-ə lock almağa icazə verir. Əgər lock alınmayıbsa, gözləyir.
+- `unlock()` — Əldə olunan lock-u sərbəst buraxır.
+- `tryLock()` — Lock almağa cəhd edir, alınsa true, yoxdursa false qaytarır. Deadlock riskini azaldır.
+- `lockInterruptibly()` — Lock alarkən thread interrupt olunsa, gözləməyi dayandırır.
+- `newCondition()` — ReentrantLock üçün Condition obyektini yaradır.
 
+**Misal**
+
+```java
+ReentrantLock lock = new ReentrantLock();
+lock.lock();
+try {
+    // critical section
+} finally {
+    lock.unlock();
+}
+```
+
+### 📌 ReentrantLock(true) nədir?
+
+- Ədalətli (fair) `ReentrantLock`.
+- `true` verəndə ilk lock istəyi edən thread, ilk lock-u alır.
+- Yəni FIFO (first-in, first-out) prinsipinə əsaslanır.
+- Əks halda (default false) — JVM optimallaşdırma üçün bəzən sıralamadan kənar thread-lərə prioritet verə bilər.
+
+```java
+ReentrantLock lock = new ReentrantLock(true);
+```
 
 
 
