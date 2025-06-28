@@ -85,9 +85,9 @@ Responsiveness — bir proqramın istifadəçinin əmrlərinə və ya hadisələ
 **Necə işləyir?**
 
 - Multithreading ilə isə:
-       - Uzun çəkən iş ayrı bir thread-də görülür.
-       - Main thread isə istifadəçidən gələn əmrlərə cavab verməyə davam edir.
-       - Bu da proqramın Responsive (həssas və donmayan) işləməsini təmin edir.
+  - Uzun çəkən iş ayrı bir thread-də görülür.
+  - Main thread isə istifadəçidən gələn əmrlərə cavab verməyə davam edir.
+  - Bu da proqramın Responsive (həssas və donmayan) işləməsini təmin edir.
 
 **📌 Nəticə:**
 Responsiveness → Concurrency
