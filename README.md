@@ -251,5 +251,402 @@ try {
 ReentrantLock lock = new ReentrantLock(true);
 ```
 
+## 1️⃣3️⃣ volatile nədir?
+
+- Java keyword-dür.
+- Bir dəyişənə `volatile` desək, o hər dəfə oxunanda və yazılanda birbaşa əsas yaddaşdan oxunur və yazılır.
+- CPU cache-lərdə saxlanmır, bu da thread-lər arasında görünməyən yazmaları həll edir.
+- Sinxronizasiya təmin etmir, sadəcə visibility problemi aradan qalxır.
+
+**Misal:**
+
+```java
+volatile boolean flag = true;
+```
+
+## 1️⃣4️⃣ Memory Barrier nədir?
+
+- CPU və JVM-in təlimatları icra etmə ardıcıllığını və cache sinxronizasiyasını tənzimləyən mexanizmdir.
+- `volatile` və `synchronized` kimi mexanizmlər memory barrier əmrləri qoyur:
+  - Yazma barrier
+  - Oxuma barrier
+- Bu sayədə CPU əmrləri yenidən düzəltmədən icra edir və dəyişənlər dərhal əsas yaddaşda görünür. 
+
+## 1️⃣5️⃣ synchronized nədir?
+
+- Java-da ən klassik sinxronizasiya mexanizmidir.
+- Bir thread-in müəyyən kod hissəsinə daxil olarkən digərlərinin girməsini qadağan edir.
+- Monitor lock istifadə edir.
+- Yəni həmin obyektə ya class, ya obyekt səviyyəsində kilid qoyur.
+
+**Misal:**
+```java
+synchronized (this) {
+    // critical section
+}
+```
+
+## 1️⃣6️⃣ ReadWriteLock nədir?
+
+- Oxuma və yazma əməliyyatlarını fərqli idarə edən lock mexanizmi.
+- Eyni anda bir neçə thread oxuya bilər, amma yazı zamanı digər thread-lər gözləyir.
+- Yazı varsa, heç kim oxuya bilmir.
+
+**Misal:**
+
+```java
+ReadWriteLock lock = new ReentrantReadWriteLock();
+lock.readLock().lock();
+// oxuma əməliyyatı
+lock.readLock().unlock();
+```
+
+## 1️⃣7️⃣ Semaphore nədir?
+
+- İcazə mexanizmi.
+- Məlum sayda thread-in eyni anda müəyyən hissəyə girməsinə icazə verir.
+- İcazə sayı bitəndə digər thread-lər gözləyir.
+- Məsələn, 3 icazə varsa, 3 thread daxil ola bilər, qalanlar gözləyir.
+
+**Misal:**
+
+```java
+Semaphore semaphore = new Semaphore(3);
+semaphore.acquire();
+// iş
+semaphore.release();
+```
+
+## 1️⃣8️⃣ Thread pool-lar nədir?
+
+- Hazır və idarə olunan thread-lər toplusudur.
+- Thread yaratmaq və məhv etmək overhead-inin qarşısını alır.
+- Sistem yüklənməsini balanslaşdırır.
+- Java-da `ExecutorService` ilə idarə olunur.
+
+**Misal:**
+
+```java
+ExecutorService pool = Executors.newFixedThreadPool(5);
+pool.execute(() -> System.out.println("Hello"));
+```
+
+## 1️⃣9️⃣ wait() / notify() nədir?
+
+- Java-da obyekt səviyyəsində sinxronizasiya üçün istifadə olunur.
+- `wait()` → thread-in gözləməsini təmin edir.
+- `notify()` → gözləyən thread-lərdən birini oyadır.
+- `notifyAll()` → hamısını oyadır.
+- Yalnız `synchronized` blok içində işləyir.
+
+**Misal:**
+
+```java
+synchronized (lock) {
+    lock.wait();
+    lock.notify();
+}
+```
+
+## 2️⃣0️⃣ Condition nədir?
+
+- `ReentrantLock` ilə əvəzolunmuş `wait()` / `notify()` mexanizmi.
+- **Daha çox funksionallıq təqdim edir:**
+  - `await()`
+  - `signal()`
+  - `signalAll()`
+
+**Misal:**
+
+```java
+Condition condition = lock.newCondition();
+lock.lock();
+try {
+    condition.await();
+    condition.signal();
+} finally {
+    lock.unlock();
+}
+```
+
+## 📌 Java Concurrency Alətləri və Onların İşi
+
+### 🔒 ReentrantLock
+- `lock()` — Thread-ə lock almağa icazə verir. Əgər lock alınmayıbsa, gözləyir.
+- `unlock()` — Əldə olunan lock-u sərbəst buraxır.
+- `tryLock()` — Lock almağa cəhd edir, alınsa true, yoxdursa false qaytarır. `Deadlock` riskini azaldır.
+- `lockInterruptibly()` — Lock alarkən thread interrupt olunsa, gözləməyi dayandırır.
+- `newCondition()` — `ReentrantLock` üçün `Condition` obyektini yaradır.
+
+### 🔒 ReentrantLock(true)
+**`ReentrantLock(boolean fair)` — Ədalətli (fair) rejimdə lock yaradır. `true` verilsə, lock-lar ilk istəyənə verilir (`FIFO`).**
+
+### 🔑 volatile
+- Dəyişənin yaddaşdan oxunub, yazılmasını birbaşa əsas yaddaşda edir. `Visibility` problemini həll edir, amma sinxronizasiya (mutual exclusion) təmin etmir.
+
+### 📏 Memory Barrier
+- Oxuma və yazma əmrlərinin CPU və JVM səviyyəsində ardıcıllığını və görünməsini təmin edir.
+- `volatile`, `synchronized` və Lock istifadə edəndə memory barrier-lər avtomatik əlavə olunur.
+
+### 🔒 synchronized
+- Bir blok və ya metodun eyni anda yalnız bir thread tərəfindən icra olunmasını təmin edir.
+- Monitor lock-la işləyir.
+- `wait()`, `notify()`, `notifyAll()` yalnız synchronized blok içində çağırıla bilər.
+
+### 📚 ReadWriteLock
+- `readLock()` — Oxuma üçün lock verir. Bir neçə thread eyni anda oxuya bilər.
+- `writeLock()` — Yazma üçün lock verir. Yalnız bir thread yaza bilər, olanda başqaları gözləyir.
+
+### 🚥 Semaphore
+- `acquire()` — İcazə alır. Say varsa icazə verir, yoxdursa gözləyir.
+- `release()` — İcazəni geri qaytarır, gözləyən thread varsa oyadır.
+- `availablePermits()` — Hal-hazırda neçə icazə olduğunu qaytarır.
+- `tryAcquire()` — İcazə almağa cəhd edir, alınsa true, yoxdursa false.
+
+### ⚙️ Thread Pool-lar (`ExecutorService`)
+- `execute(Runnable task)` — Runnable tipli task icra edir.
+- `submit(Callable/Void task)` — Task göndərir və gələcək nəticə (Future) qaytarır.
+- `shutdown()` — Pool-u bağlayır, yeni iş qəbul etmir.
+- `shutdownNow()` — Pool-u dərhal bağlayır, işləyən thread-ləri dayandırır.
+- `awaitTermination(timeout, unit)` — Pool-un tam bağlanmasını gözləyir.
+
+### 🛡️ tryLock()
+- `ReentrantLock` metodudur.
+- Lock almağa cəhd edir, əgər alınsa true, yoxdursa false qaytarır.
+- `Deadlock`-ları önləmək və ya alternativ mexanizm işlətmək üçün istifadə olunur.
+
+### 🕵️ Deadlock detection (`ThreadMXBean`)
+- `findDeadlockedThreads()` — Hal-hazırda deadlock-da olan thread-lərin ID-lərini qaytarır.
+- `findMonitorDeadlockedThreads()` — synchronized bloklarında kilidlənən thread-ləri qaytarır.
+
+### 📢 wait() / notify() / notifyAll()
+- `wait()` — Thread-i wait vəziyyətinə salır və `notify()` və ya `notifyAll()` gələnədək gözləyir.
+- `notify()` — wait-də gözləyən thread-lərdən birini oyadır.
+- `notifyAll()` — wait-də gözləyən bütün thread-ləri oyadır.
+Yalnız `synchronized` blok içində işləyir.
+
+### 📌 Condition (ReentrantLock ilə)
+- `await()` — Thread-i wait() kimi gözləməyə salır.
+- `signal()` — `await()`-də gözləyən thread-lərdən birini oyadır.
+- `signalAll()` — `await()`-də gözləyən bütün thread-ləri oyadır.
+- `ReentrantLock`-un daha çevik və inkişaf etmiş sinxronizasiya mexanizmidir.
+
+## 2️⃣1️⃣ ExecutorService nədir?
+
+- **`ExecutorService`** — Java-da thread pool-ları idarə edən interfeysdir.
+- Yeni thread yaratmaq əvəzinə, hazır thread-lərdən istifadə edərək işləri icra edir.
+- Yəni thread-ləri sistemli və nəzarətli şəkildə idarə etməyə imkan verir.
+
+### 📌 Əsas Metodları və Nə İş Görür?
+
+| Metod                             | Nə edir?                                               |
+| :-------------------------------- | :----------------------------------------------------- |
+| `execute(Runnable command)`       | Runnable tipli iş icra edir, nəticə qaytarmır.         |
+| `submit(Runnable task)`           | Runnable task icra edir, `Future` qaytarır.            |
+| `submit(Callable task)`           | Callable task icra edir, `Future` ilə nəticə qaytarır. |
+| `shutdown()`                      | Yeni iş qəbul etməyi dayandırır.                       |
+| `shutdownNow()`                   | Bütün işləyən thread-ləri dayandırmağa cəhd edir.      |
+| `awaitTermination(timeout, unit)` | Pool-un bağlanmasını müəyyən müddət gözləyir.          |
+| `isShutdown()`                    | Pool-un bağlanıb-bağlanmadığını yoxlayır.              |
+| `isTerminated()`                  | Bütün işlər bitib-bitmədiyini yoxlayır.                |
+
+**📌 Kod Nümunəsi:**
+
+```java
+import java.util.concurrent.*;
+
+public class ExecutorServiceExample {
+    public static void main(String[] args) {
+        // 5 thread-lik thread pool yaradırıq
+        ExecutorService executor = Executors.newFixedThreadPool(5);
+
+        // Runnable task (geri dəyər qaytarmır)
+        Runnable task1 = () -> System.out.println("Runnable iş icra olunur");
+
+        // Callable task (geri dəyər qaytarır)
+        Callable<String> task2 = () -> {
+            Thread.sleep(1000);
+            return "Callable nəticəsi";
+        };
+
+        // execute() - Runnable iş göndərir, Future qaytarmır
+        executor.execute(task1);
+
+        // submit() - Runnable iş göndərir, Future qaytarır
+        Future<?> future1 = executor.submit(task1);
+
+        // submit() - Callable iş göndərir, Future qaytarır
+        Future<String> future2 = executor.submit(task2);
+
+        try {
+            // Callable işin nəticəsini alırıq
+            String result = future2.get();
+            System.out.println(result);
+        } catch (InterruptedException | ExecutionException e) {
+            e.printStackTrace();
+        }
+
+        // Pool-u bağlayırıq
+        executor.shutdown();
+    }
+}
+```
+
+## 2️⃣2️⃣ ExecutorServiceScheduler nədir?
+
+- **`ScheduledExecutorService`** — ExecutorService-in ixtisaslaşmış versiyasıdır.
+- Müəyyən bir gecikmə ilə və ya dövrü (periodic) iş icra etmək üçün istifadə olunur.
+
+### 📌 Əsas Metodları:
+
+| Metod                                                                                    | Nə edir?                                                             |
+| :--------------------------------------------------------------------------------------- | :------------------------------------------------------------------- |
+| `schedule(Runnable command, long delay, TimeUnit unit)`                                  | Verilən gecikmə ilə Runnable iş icra edir.                           |
+| `schedule(Callable command, long delay, TimeUnit unit)`                                  | Verilən gecikmə ilə Callable iş icra edir.                           |
+| `scheduleAtFixedRate(Runnable command, long initialDelay, long period, TimeUnit unit)`   | Verilən interval ilə işləri **sabit aralıqla** icra edir.            |
+| `scheduleWithFixedDelay(Runnable command, long initialDelay, long delay, TimeUnit unit)` | Hər iş bitəndən sonra **müəyyən gecikmə ilə** növbəti işi icra edir. |
+
+**📌 Kod Nümunəsi:**
+
+```java
+import java.util.concurrent.*;
+
+public class ScheduledExecutorExample {
+    public static void main(String[] args) {
+        // 2 thread-lik scheduler
+        ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(2);
+
+        Runnable task = () -> System.out.println("Gecikmiş və ya dövrü iş");
+
+        // 3 saniyə gecikmə ilə işə sal
+        scheduler.schedule(task, 3, TimeUnit.SECONDS);
+
+        // Hər 5 saniyədən bir işlə
+        scheduler.scheduleAtFixedRate(task, 1, 5, TimeUnit.SECONDS);
+
+        // Hər iş bitəndən 5 saniyə sonra növbəti
+        scheduler.scheduleWithFixedDelay(task, 1, 5, TimeUnit.SECONDS);
+    }
+}
+```
+
+## 2️⃣3️⃣ execute() vs submit() fərqi nədir?
+
+| Xüsusiyyət        | `execute()`                                                    | `submit()`                                   |
+| :---------------- | :------------------------------------------------------------- | :------------------------------------------- |
+| İcra etdiyi iş    | Yalnız **Runnable** qəbul edir.                                | **Runnable və Callable** qəbul edir.         |
+| Nəticə qaytarır?  | Xeyr                                                           | Bəli — **Future** obyekt qaytarır.           |
+| Exception idarəsi | Exception atılsa, **Executor-un default handler-i** çağırılır. | Exception **Future.get()** çağıranda atılır. |
+
+## 2️⃣4️⃣ Runnable, Callable, Future nədir?
+
+### 🔸 Runnable
+- `run()` metodu var.
+- Heç bir nəticə qaytarmır və exception atmaz.
+
+```java
+Runnable task = () -> System.out.println("iş gedir");
+```
+
+### 🔸 Callable
+- `call()` metodu var.
+- Nəticə qaytarır və exception ata bilər.
+
+```java
+Callable<String> task = () -> "nəticə";
+```
+
+### 🔸 Future
+- `submit()` metodunun geri qaytardığı obyekt.
+- Task-in nəticəsini sonradan almağa imkan verir.
+- **Əsas metodları: **
+  - `get()` → Nəticəni qaytarır, yoxsa gözləyir.
+  - `isDone()` → İş bitibmi?
+  - `cancel()` → Task-i dayandır.
+  - `isCancelled()` → Task dayandırılıb?
+
+```java
+Future<String> result = executor.submit(callable);
+String value = result.get();
+```
+
+### 📌 Runnable mi, Callable mi seçəcəyik? Nə vaxt hansını?
+
+#### 🔴 Runnable → Əgər:
+Task nəticə qaytarmalı deyilsə
+
+- Sadəcə iş icra olunmalıdırsa (məs: faylı silmək, məlumat çap etmək, faylı yükləmək və s.)
+- Exception-ları manual sinxron şəkildə idarə etmək lazım deyilsə
+- `execute()` və ya `submit()` metodları ilə işləmək istədikdə (`Future` lazım deyilsə)
+
+**Misal:**
+- Log faylına mesaj yazmaq üçün thread lazımdır → Runnable
+
+#### 🔵 Callable → Əgər:
+- Task nəticə qaytarmalıdırsa
+- Task icrası zamanı `Exception` ata bilərsə
+- Task-in işinin bitməsini gözləyib nəticəni `Future.get()` ilə almaq istəyiriksə
+- Daha kompleks asinxron hesablama və ya məlumat dönmək lazımdırsa
+
+**Misal:**
+- Bir serverdən məlumat alıb gələn `JSON`-u qaytarmaq → `Callable`
+
+#### 📌 Seçim meyarı:
+
+| Sual                               | Cavab | Seçim    |
+| :--------------------------------- | :---- | :------- |
+| Task nəticə qaytaracaq?            | Bəli  | Callable |
+| Exception ata bilər?               | Bəli  | Callable |
+| Task sadəcə iş görəcək?            | Bəli  | Runnable |
+| Nəticə lazım deyil?                | Bəli  | Runnable |
+| Nəticəni sonradan almaq istəyirəm? | Bəli  | Callable |
+
+
+#### 📌 Real Misallar:
+
+**✅ Runnable:**
+
+```java
+Runnable cleanLogs = () -> System.out.println("Loglar silindi");
+executor.execute(cleanLogs);
+```
+
+**✅ Callable:**
+
+```java
+Callable<String> fetchData = () -> {
+    Thread.sleep(1000);
+    return "Serverdən data";
+};
+Future<String> data = executor.submit(fetchData);
+String result = data.get();
+System.out.println(result);
+```
+
+## 👉 Future — bir thread-in (və ya task-in) nə vaxt bitəcəyini izləmək, istəsən dayandırmaq və ən əsası iş bitəndə onun nəticəsini almaq üçün istifadə olunur.
+
+
+### 📌 Runnable vs Callable fərqi
+
+| Xüsusiyyət             | Runnable | Callable |
+| :--------------------- | :------- | :------- |
+| Metod adı              | `run()`  | `call()` |
+| Nəticə qaytarır?       | Xeyr     | Bəli     |
+| Exception atır?        | Xeyr     | Bəli     |
+| submit() ilə işləyir?  | Bəli     | Bəli     |
+| execute() ilə işləyir? | Bəli     | Xeyr     |
+
+### 📌 Yekun Cədvəl
+
+| İstifadə     | Metod                      | Task tipi         | Nəticə     |
+| :----------- | :------------------------- | :---------------- | :--------- |
+| İş icra et   | `execute(Runnable)`        | Runnable          | Yox        |
+| İş icra et   | `submit(Runnable)`         | Runnable          | Future\<?> |
+| İş icra et   | `submit(Callable)`         | Callable          | Future<T>  |
+| Gecikməli iş | `schedule()`               | Runnable/Callable | Future     |
+| Dövrü iş     | `scheduleAtFixedRate()`    | Runnable          | —          |
+| Dövrü iş     | `scheduleWithFixedDelay()` | Runnable          | —          |
+
+
 
 
